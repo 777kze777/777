@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+
+<html lang="en-us">
+<head>
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes"/>
+<title>Escape Masters</title>
+<style>html, body { background: #ffffff; }</style>
+<link rel="stylesheet" href="TemplateData/style.css"/>
+</head>
+<body>
+<!--
+      Escape Masters web template.
+
+      webgl/yandex: loads the Yandex Games SDK below. Each platform branch owns
+      its SDK script here (Docs/decisions/2026-09-23-platform-branches.md).
+
+      Three deliberate differences from Unity's Default template:
+        1. No fullscreen button. CrazyGames forbids custom fullscreen controls
+           and supplies its own.
+        2. user-select is disabled, per CrazyGames' mandatory requirements.
+        3. The canvas fills the viewport instead of a fixed 960x600 window, so
+           the game is playable and readable from 800x450 to 1920x1080.
+    -->
+<div id="unity-container">
+<canvas id="unity-canvas" width="960" height="600" tabindex="-1"></canvas>
+<div id="startup-loader" tabindex="-1" data-stage="build">
+<img src="TemplateData/loader-logo.webp" alt="" draggable="false"/>
+<div id="unity-loading-bar">
+<div id="startup-progress-value">0%</div>
+<div id="unity-progress-bar-empty" role="progressbar" aria-label="Escape Masters" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+<div id="unity-progress-bar-full"></div>
+</div>
+</div>
+</div>
+<div id="unity-warning"> </div>
+</div>
+<!-- Yandex Games SDK. Relative path: the archive is hosted by Yandex (rules 1.1, 1.7). -->
+<script src="/sdk.js"></script>
+<script>
+      // One SDK initialization and one window.ysdk for the whole page. A failure is a
+      // console diagnostic only; the game runs on local saves and without ads.
+      window.getYandexSdk = function () {
+        if (window.ysdk) return Promise.resolve(window.ysdk);
+        if (window.yandexSdkPromise) return window.yandexSdkPromise;
+        if (typeof YaGames === "undefined" || !YaGames.init) {
+          return Promise.reject(new Error("Yandex Games SDK script did not load"));
+        }
+        window.yandexSdkPromise = YaGames.init().then(function (sdk) {
+          window.ysdk = sdk;
+          // The game reads its language once at start (EscapePlatform_GetLanguage).
+          var i18n = sdk.environment && sdk.environment.i18n;
+          if (i18n && i18n.lang) {
+            window.EscapePlatform = window.EscapePlatform || {};
+            window.EscapePlatform.language = i18n.lang;
+          }
+          return sdk;
+        }, function (error) {
+          window.yandexSdkPromise = null;
+          throw error;
+        });
+        return window.yandexSdkPromise;
+      };
+      window.getYandexSdk().catch(function (error) {
+        console.error("[Yandex] SDK initialization failed", error);
+      });
+    </script>
+<script src="TemplateData/loader.js"></script>
+<script>
+      var container = document.querySelector("#unity-container");
+      var canvas = document.querySelector("#unity-canvas");
+      var warningBanner = document.querySelector("#unity-warning");
+
+      // Temporary banner for non-critical warnings; permanent for errors.
+      function unityShowBanner(msg, type) {
+        function updateBannerVisibility() {
+          warningBanner.style.display = warningBanner.children.length ? 'block' : 'none';
+        }
+        var div = document.createElement('div');
+        div.innerHTML = msg;
+        warningBanner.appendChild(div);
+        if (type == 'error') {
+          div.style = 'background: red; padding: 10px;';
+        } else {
+          if (type == 'warning') div.style = 'background: yellow; padding: 10px;';
+          setTimeout(function () {
+            warningBanner.removeChild(div);
+            updateBannerVisibility();
+          }, 5000);
+        }
+        updateBannerVisibility();
+      }
+
+      var buildBase = ".";
+      // Enable only after the independent desktop checkout has a verified build.
+      // Host its matching loader/data/framework/wasm names and StreamingAssets at
+      // this one base path; never select the files independently or prefetch it.
+      // if (!/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) buildBase = "desktop";
+      var buildUrl = buildBase + "/Build";
+      var loaderUrl = buildUrl + "/webgl-yandex-ca7e2bf8.loader.js";
+      var config = {
+        dataUrl: buildUrl + "/webgl-yandex-ca7e2bf8.data.br",
+        frameworkUrl: buildUrl + "/webgl-yandex-ca7e2bf8.framework.js.br",
+        codeUrl: buildUrl + "/webgl-yandex-ca7e2bf8.wasm.br",
+        streamingAssetsUrl: buildBase + "/StreamingAssets",
+        companyName: "Playgendary Limited",
+        productName: "Escape Masters",
+        productVersion: "1.8.0",
+        showBanner: unityShowBanner,
+      };
+
+      // The canvas is sized by CSS to fill the viewport. Unity keeps the WebGL
+      // render target matched to the canvas DOM size, so no explicit pixel
+      // sizes are set here for either desktop or mobile.
+      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+        container.className = "unity-mobile";
+        canvas.className = "unity-mobile";
+      }
+
+      var script = document.createElement("script");
+      script.src = loaderUrl;
+      script.onload = () => {
+        createUnityInstance(canvas, config, (progress) => {
+          window.escapeMastersLoader.reportProgress(0.4 * progress, "build");
+        }).then((unityInstance) => {
+          window.escapeMastersLoader.instanceCreated(unityInstance);
+        }, (message) => {
+          window.escapeMastersLoader.bootstrapFailed(message);
+          // Preserve the template's existing build-bootstrap error policy.
+          unityShowBanner(message, 'error');
+        });
+      };
+      script.onerror = () => window.escapeMastersLoader.bootstrapFailed("Unity loader script could not load.");
+      document.body.appendChild(script);
+    </script>
+</body>
+</html>

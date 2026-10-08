@@ -1,0 +1,110 @@
+/*
+  Escape Masters web template styles.
+
+  user-select is disabled on every element: CrazyGames lists it as a mandatory
+  requirement, because text selection on drag ruins touch and mouse gameplay.
+*/
+
+* {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #ffffff;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+#unity-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #ffffff;
+}
+
+/*
+  Fill the viewport at any size. This is what lets the game stay playable and
+  readable from 800x450 to 1920x1080 instead of sitting in a fixed 960x600 box.
+*/
+#unity-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: #ffffff;
+  touch-action: none;
+}
+
+/* The game's logo on white, as on the mobile splash. */
+#startup-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  background: #ffffff;
+  overflow: hidden;
+  touch-action: none;
+  outline: none;
+}
+
+/* About half the width on a phone; bounded by the height in a landscape window. */
+#startup-loader img {
+  position: absolute;
+  left: 50%;
+  top: 45%;
+  transform: translate(-50%, -50%);
+  width: min(46vw, 50vh, 480px);
+  height: auto;
+}
+
+#unity-loading-bar {
+  position: absolute;
+  bottom: max(6%, env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(calc(100% - 48px), 420px);
+}
+
+#startup-progress-value {
+  margin-bottom: 8px;
+  color: #4b1d78;
+  text-align: center;
+  font-size: 18px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+#unity-progress-bar-empty {
+  width: 100%;
+  height: 10px;
+  border-radius: 5px;
+  background: #ebe4f5;
+  overflow: hidden;
+}
+
+#unity-progress-bar-full {
+  width: 0%;
+  height: 100%;
+  border-radius: 5px;
+  background: #8a4ddb;
+}
+
+#unity-warning {
+  position: absolute;
+  left: 50%;
+  top: 8px;
+  transform: translate(-50%, 0);
+  display: none;
+  z-index: 10;
+  color: #231f20;
+  font-size: 14px;
+}
